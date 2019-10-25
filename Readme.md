@@ -457,8 +457,11 @@ strawberry       (admin)
 Now i can athenticate in the app as the admin, and change the extension type file (add php extension) to upload, and then upload a reverse shell and fianlly caught a shell as "www-data"
 
 ![dashbord](https://github.com/roughiz/registry-walktrough/blob/master/dash.png)
+
 ![Modify Extension](https://github.com/roughiz/registry-walktrough/blob/master/addext.png)
+
 ![Php shell](https://github.com/roughiz/registry-walktrough/blob/master/revphpshell.png)
+
 ![Shell as www-data](https://github.com/roughiz/registry-walktrough/blob/master/shell.png)
 
 www-data user have the right to execute a command as root : 
