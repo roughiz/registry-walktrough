@@ -88,11 +88,11 @@ X-Content-Type-Options: nosniff
 We can use the http API to search manually if we have any images and, pull the blobs etc, but i found a python script which automatic this process.
 This [url](https://www.notsosecure.com/anatomy-of-a-hack-docker-registry/) explain how to exploit docker registry.
 
-But before that, i enumerate the http://registry.htb/ and it appears to have some paths an this subdomain site :
+But before that, i enumerate the http://registry.htb/ and it appears to have some paths in this subdomain site :
 
 ```
-/install (Status: 301)  ( a strange string, maybe a encrypted data or something like this)
-/bolt (Status: 301)    (bolt CMS ) (
+/install (Status: 301)  ( a strange string, maybe an encrypted data or something like this)
+/bolt (Status: 301)     (bolt CMS ) 
 ```  
 
 And under /bolt we have :
@@ -186,7 +186,7 @@ $ for i in *.tar.gz; do tar -xzvf $i; done
 
 The command  exract many things, and in the first stage i can see that we have in /root/.ssh some ssh keys.
 
-And with config and id_rda.pub we can understand that theses keys is for user "bolt" and used, to authenticate from the docker container to the Host box "registry.htb" as bolt user.
+And with config and id_rsa.pub we can understand that theses keys are used to authenticate from the docker container to the Host box "registry.htb" as "bolt" user.
 
 Ok so i tried to authenticate like :
 
@@ -244,7 +244,7 @@ Bingo, we found the passphrase:
 
 #### Passphrase : GkOcz221Ftb3ugog
 
-And know we get a shell as user bolt : 
+And now we get a shell as user bolt : 
 
 ```
 $ ssh -i id_rsa bolt@10.10.10.159
@@ -255,7 +255,7 @@ bolt@bolt:~$ id
 uid=1001(bolt) gid=1001(bolt) groups=1001(bolt)
 ```
 
-The first thing i do when working in a box using doker is to read "/proc/1/cgroup" file to know if i'am into a docker container, and we can see from the output that we are in the Host:  
+The first thing to do when you're working in a box using doker is to read "/proc/1/cgroup" file to know if we're into a docker container, and we can see from the output that we are in the Host:
 
 ```
 $ cat /proc/1/cgroup
@@ -363,7 +363,7 @@ PORT     STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 0.07 seconds
 ```
 
-## Privelege  escalation 
+## Privilege  escalation 
 
 Let's escalate 
 
@@ -375,14 +375,14 @@ Enter passphrase for key 'id_rsa':
 LinEnum.sh                                                                                                                                                                       100%   46KB 420.5KB/s   00:00
 ```
 
-But nothing intersting with LinEnum.sh, and with some enumeration i found  aphp file which execute a sudo command trought "shell_exec()" function, and when i visit this file in the browser, the root user execute this command.
+But nothing intersting with LinEnum.sh, and with some enumeration i found  a php file which execute a sudo command through "shell_exec()" function, and when i visit this file in the browser, the root user execute this command.
 
 ```
-bolt@bolt:/var/www/html$ cat backup.php xœ
+bolt@bolt:/var/www/html$ cat backup.php
 <?php shell_exec("sudo restic backup -r rest:http://backup.registry.htb/bolt bolt");
 ```
 
-With pspy we have all command execution in the box, when executing the  "backup.php" page we caught this with pspy:
+With pspy we have all executing commands in the box, and when i visited "backup.php" page i caught this with pspy:
 
 ```
 2019/10/22 18:37:40 CMD: UID=0    PID=4218   | sudo restic backup -r rest:http://backup.registry.htb/bolt bolt 
@@ -400,9 +400,9 @@ With pspy we have all command execution in the box, when executing the  "backup.
 We have a lot of infos from pspy, but the main intersting was : 
 
 ###### The user "www-data"( uid=33) have a sudo right to execute a command as root.
-###### A cron script removing all content of " /var/www/html/bolt/files/"  is executing each 4 minute.
+###### A cron script removing all content of " /var/www/html/bolt/files/" each 4 minutes.
  
-#### Caught a shell as www-data
+#### Shell as www-data
 
 We don't have rights to put any php rev-shell into /var/www/html/, so the idea is to found creds to authenticate to the bolt CMS, and exploit from this point.
  
@@ -441,10 +441,10 @@ Here we have : $algo$hash, so we deduct that we don't have a salt.
 Let's crack it with john like :
 
 ```
-$ cat hashe                                                                  
+$ cat hash                                                                  
 admin:$2y$10$e.ChUytg9SrL7AsboF2bX.wWKQ1LkS5Fi3/Z0yYD86.P5E9cpY7PK
 
-$ john   --wordlist=ockyou.txt hashe             
+$ john   --wordlist=Rockyou.txt hash             
 Warning: detected hash type "bcrypt", but the string is also recognized as "bcrypt-opencl"
 Use the "--format=bcrypt-opencl" option to force loading these as that type instead
 Using default input encoding: UTF-8
@@ -455,7 +455,9 @@ Press 'q' or Ctrl-C to abort, almost any other key for status
 strawberry       (admin)
 ```
 
-Now i can athenticate in the app as the admin, and change the extension type file (add php extension) to upload, and then upload a reverse shell and fianlly caught a shell as "www-data"
+Now i can authenticate in the app as admin, and change the extension type file (add php extension) of uploaded files, and then upload a reverse shell and finally caught a shell as "www-data"
+
+##### Nota: due to the iptables restriction, the reverse shell use the localhost as the ip. 
 
 ![dashbord](https://github.com/roughiz/registry-walktrough/blob/master/dash.png)
 
@@ -465,7 +467,7 @@ Now i can athenticate in the app as the admin, and change the extension type fil
 
 ![Shell as www-data](https://github.com/roughiz/registry-walktrough/blob/master/shell.png)
 
-www-data user have the right to execute a command as root : 
+www-data user have the right to execute a command as root without password: 
 
 ```
 sudo -l
@@ -532,7 +534,7 @@ restoring <Snapshot 1e87adc8 of [/root/.ssh ] at 2019-10-24 21:17:11.536993386 +
 
 ### Root Dance
 
-Here i have the keys for ssh , so i can just do :
+Here i have the root keys for ssh , so i can just do :
 
 ```
 $ ssh -i id_rsa root@10.10.10.159
