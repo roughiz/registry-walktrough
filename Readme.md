@@ -1,6 +1,6 @@
 ## Scan
 
-I use masscan and nmap for a quick scan, here i use a script which create a keepnote page report from the scan, found it [here](https://github.com/roughiz/EnumNeTKeepNoteReportCreator/blob/master/keepNoteScanNetReportCreator.sh).
+I use masscan and nmap for a quick scan, here i use a script which create a keepnote page report from the scan, found it [here](https://github.com/roughiz/EnumNeTKeepNoteReportCreator).
 
 We have three open ports :
 ```
@@ -105,7 +105,7 @@ Gobuster v2.0.1              OJ Reeves (@TheColonial)
 [+] Mode         : dir
 [+] Url/Domain   : http://registry.htb/bolt/
 [+] Threads      : 10
-[+] Wordlist     : /home/roughiz/MyGit/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt
+[+] Wordlist     : SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt
 [+] Status codes : 200,204,301,302,307,403,405,500,501,502
 [+] Timeout      : 10s
 =====================================================
@@ -203,7 +203,7 @@ ssh2john.py id_rsa > id_rsa_bolt
 And bruteforce like :
 
 ```
-john   --wordlist=/home/roughiz/MyGit/wordlists/rockyou.txt id_rsa_bolt
+john   --wordlist=rockyou.txt id_rsa_bolt
 ```
 
 but no way i had nothing.. hum so let's dig into extracting data and maybe found the passphrase password there:
@@ -366,7 +366,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.07 seconds
 
 Let's escalate 
 
-We dont have route to 10.10.14 in the box , so let's use scp to transfer files like :
+We dont have route to 10.10.14.x in the box , so let's use scp to transfer files like :
 
 ```
 $ scp -i id_rsa /LinEnum/LinEnum.sh  bolt@10.10.10.159:/tmp/
@@ -429,7 +429,7 @@ bolt_blocks       bolt_homepage     bolt_relations
 bolt_cron         bolt_log_change   bolt_showcases  
 bolt_entries      bolt_log_system   bolt_taxonomy   
 sqlite> select * from bolt_users;
-1|admin|$2y$10$e.ChUytg9SrL7AsboF2bX.wWKQ1LkS5Fi3/Z0yYD86.P5E9cpY7PK|bolt@registry.htb|2019-10-17 14:34:52|10.10.14.2|Admin|["files://shell.php"]|1||||0||["root","everyone"]
+1|admin|$2y$10$e.ChUytg9SrL7AsboF2bX.wWKQ1LkS5Fi3/Z0yYD86.P5E9cpY7PK|bolt@registry.htb|2019-10-17 14:34:52|10.10.14.x|Admin|["files://shell.php"]|1||||0||["root","everyone"]
 sqlite>
 ```
 
