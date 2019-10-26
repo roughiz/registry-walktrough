@@ -132,7 +132,7 @@ Time to return and look at docker registry, the idea is to look if we can find a
 I found a [script](https://github.com/NotSoSecure/docker_fetch/) which do all theses steps(search repository, show tags,downloads all the blobs in a directory).
 
 I had to change this script, and add the authentication step using the header 'Authorization: Basic YWRtaW46YWRtaW4='
-Found the new [script](https://github.com/roughiz/registry-walktrough/blob/master/docker_image_fetch.py) here.
+Found the new [script](https://github.com/roughiz/docker_fetch_from_registry) here.
 Now i can use the script like :
 
 ```
