@@ -1,6 +1,6 @@
 ## Scan
 
-I use masscan and nmap for a quick scan, here i use a script which create a keepnote page report from the scan, found it [here](https://github.com/roughiz/EnumNeTKeepNoteReportCreator).
+I use masscan and nmap for a quick scan, here i use a script which create a keepnote page report from the scan, found it [here](https://github.com/roughiz/scautofire).
 
 We have three open ports :
 ```
